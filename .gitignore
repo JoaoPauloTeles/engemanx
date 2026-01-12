@@ -1,0 +1,71 @@
+# OSX
+.DS_Store
+
+# Expo
+.expo/
+.expo-shared/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.ipa
+*.apk
+
+# Metro
+.metro-health-check*
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn.lock
+package-lock.json
+
+# Environment Variables
+.env
+.env.local
+.env.development
+.env.production
+.env*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# Testing
+coverage/
+.nyc_output
+
+# TypeScript
+*.tsbuildinfo
+
+# Misc
+.cache/
+temp/
+*.log
+
+# Android
+android/
+.gradle/
+local.properties
+*.iml
+.externalNativeBuild
+.cxx/
+
+# iOS
+ios/
+*.xcworkspace
+*.xcuserstate
+Pods/
