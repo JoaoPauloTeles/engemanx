@@ -1,54 +1,77 @@
 /**
  * EngemanX Mobile - App Principal
- * SUBSTITUA o App.tsx existente por este conteúdo
+ * Integração com Sistema de Navegação
+ * 
+ * Arquivo: App.tsx (SUBSTITUIR O EXISTENTE)
  */
 
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { StyleSheet, View, Text } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { StyleSheet } from 'react-native';
+
+import { AppNavigator } from './src/navigation/AppNavigator';
+import { theme } from './src/theme';
+
+// ============================================================================
+// ERROR BOUNDARY (Simples)
+// ============================================================================
+
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('App Error:', error, errorInfo);
+    // TODO: Enviar para serviço de tracking (Sentry, etc)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // TODO: Criar tela de erro customizada
+      return null;
+    }
+
+    return this.props.children;
+  }
+}
+
+// ============================================================================
+// MAIN APP COMPONENT
+// ============================================================================
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <StatusBar style="light" />
-      <View style={styles.container}>
-        <View style={styles.content}>
-          <Text style={styles.title}>EngemanX Mobile</Text>
-          <Text style={styles.subtitle}>CIL Operations App</Text>
-          <Text style={styles.info}>✅ Setup inicial completo!</Text>
-          <Text style={styles.info}>📱 Pronto para desenvolvimento</Text>
-        </View>
-      </View>
-    </SafeAreaProvider>
+    <ErrorBoundary>
+      <GestureHandlerRootView style={styles.container}>
+        <SafeAreaProvider>
+          <StatusBar 
+            style="light" 
+            backgroundColor={theme.colors.primary[600]} 
+          />
+          <AppNavigator />
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </ErrorBoundary>
   );
 }
+
+// ============================================================================
+// STYLES
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  content: {
-    flex: 1,
-    backgroundColor: '#1E82FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    marginBottom: 32,
-  },
-  info: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    marginVertical: 4,
   },
 });
