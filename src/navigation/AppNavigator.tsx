@@ -15,7 +15,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { LoginScreen } from '../screens/auth/LoginScreen';
-
+import { RegisterScreen } from '../screens/auth/RegisterScreen'; // ADICIONAR
+import { ForgotPasswordScreen } from '../screens/auth/ForgotPasswordScreen'; 
 
 import { theme } from '../theme';
 import type {
@@ -54,16 +55,6 @@ const PlaceholderScreen: React.FC<PlaceholderProps> = ({
       </TouchableOpacity>
     )}
   </View>
-);
-
-
-
-const RegisterScreen = ({ navigation }: any) => (
-  <PlaceholderScreen title="Cadastro" navigation={navigation} />
-);
-
-const ForgotPasswordScreen = ({ navigation }: any) => (
-  <PlaceholderScreen title="Recuperar Senha" navigation={navigation} />
 );
 
 // Routes Screens

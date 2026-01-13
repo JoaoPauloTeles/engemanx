@@ -1,13 +1,9 @@
 /**
- * Login Screen
+ * Register Screen (VERSÃO FINAL CORRIGIDA)
  * 
- * Clean Code:
- * - Single Responsibility: Apenas lida com UI de login
- * - Separation of Concerns: Lógica no hook useAuth
- * - User-Friendly: Validação e feedback visual
- * - Responsive: 70% da largura com max-width para telas grandes
+ * Clean Code + Cross-Platform Alert
  * 
- * Arquivo: src/screens/auth/LoginScreen.tsx (SUBSTITUIR)
+ * Arquivo: src/screens/auth/RegisterScreen.tsx (SUBSTITUIR COMPLETO)
  */
 
 import React, { useState } from 'react';
@@ -25,38 +21,65 @@ import { theme } from '../../theme';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { useAuth } from '../../hooks/useAuth';
+import { showSuccessAlert } from '../../utils/alert.utils';
 import type { AuthStackScreenProps } from '../../types/navigation.types';
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
-type Props = AuthStackScreenProps<'Login'>;
+type Props = AuthStackScreenProps<'Register'>;
+
+// ============================================================================
+// LOGGING HELPER
+// ============================================================================
+
+function logDebug(location: string, message: string, data?: any): void {
+  console.log(`🔍 [RegisterScreen.${location}] ${message}`, data || '');
+}
 
 // ============================================================================
 // COMPONENT
 // ============================================================================
 
-export function LoginScreen({ navigation }: Props) {
-  const { signIn, loading, error, clearError } = useAuth();
+export function RegisterScreen({ navigation }: Props) {
+  const { signUp, loading, error, clearError } = useAuth();
 
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [fullNameError, setFullNameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
   /**
    * Valida os campos do formulário
    */
   function validateForm(): boolean {
+    logDebug('validateForm', 'Iniciando validação');
+    
     let isValid = true;
 
-    // Reset errors
+    setFullNameError('');
     setEmailError('');
     setPasswordError('');
+    setConfirmPasswordError('');
     clearError();
 
-    // Validate email
+    if (!fullName.trim()) {
+      setFullNameError('Nome completo é obrigatório');
+      isValid = false;
+    } else if (fullName.trim().length < 3) {
+      setFullNameError('Nome deve ter pelo menos 3 caracteres');
+      isValid = false;
+    } else if (!hasFullName(fullName)) {
+      setFullNameError('Digite nome e sobrenome');
+      isValid = false;
+    }
+
     if (!email.trim()) {
       setEmailError('Email é obrigatório');
       isValid = false;
@@ -65,49 +88,95 @@ export function LoginScreen({ navigation }: Props) {
       isValid = false;
     }
 
-    // Validate password
     if (!password) {
       setPasswordError('Senha é obrigatória');
       isValid = false;
     } else if (password.length < 6) {
       setPasswordError('Senha deve ter pelo menos 6 caracteres');
       isValid = false;
+    } else if (!hasNumber(password)) {
+      setPasswordError('Senha deve conter pelo menos um número');
+      isValid = false;
+    } else if (!hasUpperCase(password)) {
+      setPasswordError('Senha deve conter pelo menos uma letra maiúscula');
+      isValid = false;
     }
 
+    if (!confirmPassword) {
+      setConfirmPasswordError('Confirme sua senha');
+      isValid = false;
+    } else if (password !== confirmPassword) {
+      setConfirmPasswordError('As senhas não conferem');
+      isValid = false;
+    }
+
+    logDebug('validateForm', 'Validação concluída', { isValid });
     return isValid;
   }
 
   /**
-   * Handle login button press
+   * Mostra alerta de confirmação de email
    */
-  async function handleLogin() {
+  function showEmailConfirmationAlert(userEmail: string): void {
+    logDebug('showEmailConfirmationAlert', 'Mostrando Alert', { userEmail });
+    
+    const message = `Um email de confirmação foi enviado para:\n\n${userEmail}\n\nPor favor, verifique sua caixa de entrada e clique no link de confirmação para ativar sua conta.`;
+    
+    showSuccessAlert(
+      '✅ Conta Criada com Sucesso!',
+      message,
+      () => {
+        logDebug('showEmailConfirmationAlert', 'Botão OK pressionado');
+        redirectToLogin();
+      }
+    );
+    
+    logDebug('showEmailConfirmationAlert', 'Alert chamado');
+  }
+
+  /**
+   * Redireciona para login
+   */
+  function redirectToLogin(): void {
+    logDebug('redirectToLogin', 'Navegando para Login');
+    navigation.navigate('Login');
+  }
+
+  /**
+   * Processa cadastro bem-sucedido
+   */
+  function handleSuccessfulRegistration(): void {
+    logDebug('handleSuccessfulRegistration', 'Cadastro bem-sucedido');
+    showEmailConfirmationAlert(email);
+  }
+
+  /**
+   * Handle register button
+   */
+  async function handleRegister() {
+    logDebug('handleRegister', 'Botão pressionado');
+    
     if (!validateForm()) {
+      logDebug('handleRegister', 'Validação falhou');
       return;
     }
 
-    const success = await signIn(email, password);
+    logDebug('handleRegister', 'Chamando signUp');
+    const success = await signUp(email, password, fullName);
+    logDebug('handleRegister', 'signUp retornou', { success });
 
     if (success) {
-      // Navigation will happen automatically via auth state change
-      console.log('Login successful!');
+      handleSuccessfulRegistration();
     } else {
-      // Error is shown via error state
-      console.log('Login failed');
+      logDebug('handleRegister', 'Falha no cadastro', { error });
     }
   }
 
   /**
-   * Navigate to register screen
+   * Volta para login
    */
-  function handleRegister() {
-    navigation.navigate('Register');
-  }
-
-  /**
-   * Navigate to forgot password screen
-   */
-  function handleForgotPassword() {
-    navigation.navigate('ForgotPassword');
+  function handleBackToLogin() {
+    navigation.goBack();
   }
 
   return (
@@ -119,19 +188,32 @@ export function LoginScreen({ navigation }: Props) {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Container com largura limitada */}
         <View style={styles.contentContainer}>
-          {/* Header */}
           <View style={styles.header}>
             <Text style={styles.logo}>⚙️</Text>
-            <Text style={styles.title}>EngemanX</Text>
+            <Text style={styles.title}>Criar Conta</Text>
             <Text style={styles.subtitle}>
-              Sistema de Gestão de Manutenção Industrial
+              Preencha os dados abaixo para começar
             </Text>
           </View>
 
-          {/* Form */}
           <View style={styles.form}>
+            <Input
+              label="Nome Completo"
+              placeholder="João da Silva"
+              value={fullName}
+              onChangeText={(text) => {
+                setFullName(text);
+                setFullNameError('');
+                clearError();
+              }}
+              error={fullNameError}
+              autoCapitalize="words"
+              autoCorrect={false}
+              leftIcon={<Text style={styles.inputIcon}>👤</Text>}
+              editable={!loading}
+            />
+
             <Input
               label="Email"
               placeholder="seu@email.com"
@@ -161,70 +243,71 @@ export function LoginScreen({ navigation }: Props) {
               error={passwordError}
               isPassword
               leftIcon={<Text style={styles.inputIcon}>🔒</Text>}
+              helperText="Mínimo 6 caracteres, 1 número e 1 maiúscula"
               editable={!loading}
             />
 
-            {/* Global Error */}
+            <Input
+              label="Confirmar Senha"
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChangeText={(text) => {
+                setConfirmPassword(text);
+                setConfirmPasswordError('');
+                clearError();
+              }}
+              error={confirmPasswordError}
+              isPassword
+              leftIcon={<Text style={styles.inputIcon}>🔒</Text>}
+              editable={!loading}
+            />
+
             {error && (
               <View style={styles.errorContainer}>
                 <Text style={styles.errorText}>⚠️ {error}</Text>
               </View>
             )}
 
-            {/* Forgot Password Link */}
-            <TouchableOpacity
-              onPress={handleForgotPassword}
-              disabled={loading}
-              style={styles.forgotPasswordButton}
-            >
-              <Text style={styles.forgotPasswordText}>Esqueceu a senha?</Text>
-            </TouchableOpacity>
-
-            {/* Login Button */}
             <Button
               variant="primary"
               size="lg"
               fullWidth
               loading={loading}
-              onPress={handleLogin}
+              onPress={handleRegister}
             >
-              Entrar
+              Criar Conta
             </Button>
 
-            {/* Divider */}
             <View style={styles.divider}>
               <View style={styles.dividerLine} />
               <Text style={styles.dividerText}>ou</Text>
               <View style={styles.dividerLine} />
             </View>
 
-            {/* Register Button */}
             <Button
-              variant="outline"
+              variant="ghost"
               size="lg"
               fullWidth
               disabled={loading}
-              onPress={handleRegister}
+              onPress={handleBackToLogin}
             >
-              Criar nova conta
+              Já tenho uma conta
             </Button>
           </View>
 
-          {/* Footer */}
           <View style={styles.footer}>
             <Text style={styles.footerText}>
-              Ao continuar, você concorda com nossos{' '}
+              Ao criar uma conta, você concorda com nossos{' '}
               <Text style={styles.footerLink}>Termos de Uso</Text> e{' '}
               <Text style={styles.footerLink}>Política de Privacidade</Text>
             </Text>
           </View>
 
-          {/* Development Info */}
           {__DEV__ && (
             <View style={styles.devInfo}>
               <Text style={styles.devInfoText}>🔧 Modo Desenvolvimento</Text>
               <Text style={styles.devInfoText}>
-                Teste: teste@engemanx.com / senha123
+                Criar conta de teste para acessar o app
               </Text>
             </View>
           )}
@@ -238,12 +321,22 @@ export function LoginScreen({ navigation }: Props) {
 // HELPERS
 // ============================================================================
 
-/**
- * Valida formato de email
- */
 function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
+}
+
+function hasFullName(name: string): boolean {
+  const parts = name.trim().split(' ');
+  return parts.length >= 2 && parts.every(part => part.length > 0);
+}
+
+function hasNumber(password: string): boolean {
+  return /\d/.test(password);
+}
+
+function hasUpperCase(password: string): boolean {
+  return /[A-Z]/.test(password);
 }
 
 // ============================================================================
@@ -260,12 +353,12 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    alignItems: 'center', // Centraliza horizontalmente
+    alignItems: 'center',
     padding: theme.spacing[6],
   },
   contentContainer: {
     width: '100%',
-    maxWidth: Math.min(width * 0.7, 500), // 70% com máximo de 500px
+    maxWidth: Math.min(width * 0.7, 500),
   },
   header: {
     alignItems: 'center',
@@ -302,15 +395,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: theme.colors.error,
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.medium,
-  },
-  forgotPasswordButton: {
-    alignSelf: 'flex-end',
-    marginBottom: theme.spacing[4],
-  },
-  forgotPasswordText: {
-    color: theme.colors.primary[600],
     fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.medium,
   },
