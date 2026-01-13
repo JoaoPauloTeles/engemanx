@@ -26,6 +26,8 @@ import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { useAuth } from '../../hooks/useAuth';
 import type { AuthStackScreenProps } from '../../types/navigation.types';
+import { signIn } from '../../services/auth.api';
+import { showErrorAlert } from '../../utils/alert.utils';
 
 // ============================================================================
 // TYPES
@@ -255,7 +257,7 @@ const { width } = Dimensions.get('window');
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background.primary,
+    backgroundColor: theme.colors.background.default,
   },
   scrollContent: {
     flexGrow: 1,

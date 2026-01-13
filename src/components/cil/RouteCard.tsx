@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
-import { formatDate } from '../../utils/Date.utils.ts';
+import { formatDate } from '../../utils/date.utils';
 import type { CILRoute } from '../../types/database.types';
 
 /**

@@ -1,256 +1,101 @@
-/**
- * Authentication Hook
- * 
- * Clean Code:
- * - Single Responsibility: Apenas gerencia estado de autenticação
- * - Meaningful Names: Funções claras (signIn, signOut, etc)
- * - Error Handling: Tratamento de erros consistente
- * 
- * Arquivo: src/hooks/useAuth.ts
- */
-
 import { useState, useEffect } from 'react';
-import { supabase, getCurrentUser } from '../services/supabase';
-import type { User } from '@supabase/supabase-js';
+import type { User, Session } from '@supabase/supabase-js';
+import { supabase } from '../services/supabase';
+import { 
+  signIn as authSignIn, 
+  signOut as authSignOut, 
+  signUp as authSignUp, 
+  getSession 
+} from '../services/auth.api';
 
-// ============================================================================
-// TYPES
-// ============================================================================
+export function useAuth() {
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [initializing, setInitializing] = useState(true);
 
-interface AuthState {
-  user: User | null;
-  loading: boolean;
-  error: string | null;
-}
-
-interface UseAuthReturn extends AuthState {
-  signIn: (email: string, password: string) => Promise<boolean>;
-  signUp: (email: string, password: string, fullName: string) => Promise<boolean>;
-  signOut: () => Promise<void>;
-  clearError: () => void;
-}
-
-// ============================================================================
-// HOOK
-// ============================================================================
-
-export function useAuth(): UseAuthReturn {
-  const [state, setState] = useState<AuthState>({
-    user: null,
-    loading: true,
-    error: null,
-  });
-
-  // Check initial session
   useEffect(() => {
-    checkUser();
+    // Check current session
+    getSession().then((session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setInitializing(false);
+    });
 
-    // Listen to auth changes
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth event:', event);
-        
-        if (event === 'SIGNED_IN' && session?.user) {
-          setState(prev => ({
-            ...prev,
-            user: session.user,
-            loading: false,
-            error: null,
-          }));
-        } else if (event === 'SIGNED_OUT') {
-          setState({
-            user: null,
-            loading: false,
-            error: null,
-          });
-        }
-      }
-    );
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setInitializing(false);
+    });
 
-    return () => {
-      authListener?.subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
-  /**
-   * Check if user is already authenticated
-   */
-  async function checkUser() {
-    try {
-      const user = await getCurrentUser();
-      setState({
-        user,
-        loading: false,
-        error: null,
-      });
-    } catch (error) {
-      console.error('Error checking user:', error);
-      setState({
-        user: null,
-        loading: false,
-        error: null,
-      });
-    }
-  }
+  const signIn = async (email: string, password: string) => {
+    setLoading(true);
+    setError(null);
 
-  /**
-   * Sign in with email and password
-   * Returns true if successful, false otherwise
-   */
-  async function signIn(email: string, password: string): Promise<boolean> {
-    try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
+    const { user, session, error } = await authSignIn(email, password);
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim().toLowerCase(),
-        password,
-      });
+    setLoading(false);
 
-      if (error) {
-        setState(prev => ({
-          ...prev,
-          loading: false,
-          error: getErrorMessage(error.message),
-        }));
-        return false;
-      }
-
-      if (data.user) {
-        setState({
-          user: data.user,
-          loading: false,
-          error: null,
-        });
-        return true;
-      }
-
-      return false;
-    } catch (error) {
-      console.error('Sign in error:', error);
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: 'Erro ao fazer login. Tente novamente.',
-      }));
+    if (error) {
+      setError(error);
       return false;
     }
-  }
 
-  /**
-   * Sign up new user
-   * Returns true if successful, false otherwise
-   */
-  async function signUp(
-    email: string,
-    password: string,
-    fullName: string
-  ): Promise<boolean> {
-    try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
+    setUser(user);
+    setSession(session);
+    return true;
+  };
 
-      // 1. Create auth user
-      const { data, error } = await supabase.auth.signUp({
-        email: email.trim().toLowerCase(),
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-        },
-      });
+  const signUp = async (email: string, password: string, fullName: string) => {
+    setLoading(true);
+    setError(null);
 
-      if (error) {
-        setState(prev => ({
-          ...prev,
-          loading: false,
-          error: getErrorMessage(error.message),
-        }));
-        return false;
-      }
+    const { user, error } = await authSignUp(email, password, fullName);
 
-      if (data.user) {
-        // 2. Create user record in public.users table
-        // This should be done via database trigger or RPC
-        // For now, just return success
-        setState({
-          user: data.user,
-          loading: false,
-          error: null,
-        });
-        return true;
-      }
+    setLoading(false);
 
-      return false;
-    } catch (error) {
-      console.error('Sign up error:', error);
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: 'Erro ao criar conta. Tente novamente.',
-      }));
+    if (error) {
+      setError(error);
       return false;
     }
-  }
 
-  /**
-   * Sign out current user
-   */
-  async function signOut(): Promise<void> {
-    try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
+    return true;
+  };
 
-      const { error } = await supabase.auth.signOut();
+  const signOut = async () => {
+    setLoading(true);
+    const { error } = await authSignOut();
+    setLoading(false);
 
-      if (error) {
-        throw error;
-      }
-
-      setState({
-        user: null,
-        loading: false,
-        error: null,
-      });
-    } catch (error) {
-      console.error('Sign out error:', error);
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: 'Erro ao fazer logout.',
-      }));
+    if (error) {
+      setError(error);
+      return false;
     }
-  }
 
-  /**
-   * Clear error message
-   */
-  function clearError() {
-    setState(prev => ({ ...prev, error: null }));
-  }
+    setUser(null);
+    setSession(null);
+    return true;
+  };
+
+  const clearError = () => {
+    setError(null);
+  };
 
   return {
-    ...state,
+    user,
+    session,
+    loading,
+    error,
+    initializing,
     signIn,
     signUp,
     signOut,
     clearError,
+    isAuthenticated: !!user,
   };
-}
-
-// ============================================================================
-// HELPERS
-// ============================================================================
-
-/**
- * Traduz mensagens de erro do Supabase para português
- */
-function getErrorMessage(error: string): string {
-  const errorMessages: Record<string, string> = {
-    'Invalid login credentials': 'Email ou senha incorretos',
-    'Email not confirmed': 'Email não confirmado. Verifique sua caixa de entrada.',
-    'User already registered': 'Este email já está cadastrado',
-    'Password should be at least 6 characters': 'A senha deve ter pelo menos 6 caracteres',
-    'Unable to validate email address: invalid format': 'Email inválido',
-  };
-
-  return errorMessages[error] || 'Ocorreu um erro. Tente novamente.';
 }

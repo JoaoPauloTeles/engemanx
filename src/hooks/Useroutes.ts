@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchActiveRoutes, fetchRoutesByDate } from '../services/cil.api';
-import { getCurrentDateISO } from '../utils/Date.utils';
+import { getCurrentDateISO } from '../utils/date.utils';
 import { showErrorAlert } from '../utils/alert.utils';
 import type { CILRoute } from '../types/database.types';
 
