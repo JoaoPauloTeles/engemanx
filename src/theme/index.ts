@@ -1,148 +1,211 @@
 /**
- * EngemanX Design System
- * Copie este conteúdo para: src/theme/index.ts
+ * EngemanX Mobile Theme
+ * Industrial Design System
  */
 
-export const colors = {
-  primary: {
-    500: '#1E82FF',
-    600: '#0066E6',
-    700: '#004DB3',
-  },
-  
-  status: {
-    ok: '#10B981',
-    nok: '#EF4444',
-    na: '#F59E0B',
-    pending: '#6B7280',
-    inProgress: '#3B82F6',
-    completed: '#059669',
-  },
-  
-  severity: {
-    minor: '#10B981',
-    moderate: '#F59E0B',
-    serious: '#F97316',
-    critical: '#DC2626',
-  },
-  
-  success: '#10B981',
-  warning: '#F59E0B',
-  error: '#EF4444',
-  info: '#3B82F6',
-  
-  white: '#FFFFFF',
-  black: '#000000',
-  
-  background: {
-    primary: '#FFFFFF',
-    secondary: '#F9FAFB',
-    tertiary: '#F3F4F6',
-    dark: '#1F2937',
-  },
-  
-  text: {
-    primary: '#111827',
-    secondary: '#6B7280',
-    tertiary: '#9CA3AF',
-    inverse: '#FFFFFF',
-    disabled: '#D1D5DB',
-  },
-  
-  border: {
-    light: '#E5E7EB',
-    default: '#D1D5DB',
-    dark: '#9CA3AF',
-  },
-} as const;
-
-export const typography = {
-  fontSize: {
-    xs: 12,
-    sm: 14,
-    base: 16,
-    lg: 18,
-    xl: 20,
-    '2xl': 24,
-    '3xl': 30,
-  },
-  
-  fontWeight: {
-    normal: '400',
-    medium: '500',
-    semibold: '600',
-    bold: '700',
-  },
-  
-  lineHeight: {
-    tight: 1.25,
-    normal: 1.5,
-    relaxed: 1.75,
-  },
-} as const;
-
-export const spacing = {
-  0: 0,
-  1: 4,
-  2: 8,
-  3: 12,
-  4: 16,
-  5: 20,
-  6: 24,
-  8: 32,
-  10: 40,
-  12: 48,
-} as const;
-
-export const borderRadius = {
-  none: 0,
-  sm: 4,
-  base: 8,
-  md: 12,
-  lg: 16,
-  full: 9999,
-} as const;
-
-export const shadows = {
-  sm: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  base: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  md: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-} as const;
-
 export const theme = {
-  colors,
-  typography,
-  spacing,
-  borderRadius,
-  shadows,
+  // Color palette
+  colors: {
+    // Primary brand colors
+    primary: {
+      50: '#EFF6FF',
+      100: '#DBEAFE',
+      200: '#BFDBFE',
+      300: '#93C5FD',
+      400: '#60A5FA',
+      500: '#3B82F6',
+      600: '#2563EB',
+      700: '#1D4ED8',
+      800: '#1E40AF',
+      900: '#1E3A8A',
+    },
+
+    // Neutral colors
+    neutral: {
+      50: '#F9FAFB',
+      100: '#F3F4F6',
+      200: '#E5E7EB',
+      300: '#D1D5DB',
+      400: '#9CA3AF',
+      500: '#6B7280',
+      600: '#4B5563',
+      700: '#374151',
+      800: '#1F2937',
+      900: '#111827',
+    },
+
+    // Status colors
+    status: {
+      ok: '#10B981',      // Green
+      nok: '#EF4444',     // Red
+      na: '#F59E0B',      // Amber
+      info: '#3B82F6',    // Blue
+    },
+
+    // Severity colors (for anomalies)
+    severity: {
+      minor: '#10B981',      // Green
+      moderate: '#F59E0B',   // Amber
+      serious: '#F97316',    // Orange
+      critical: '#DC2626',   // Dark Red
+    },
+
+    // Background colors
+    background: {
+      default: '#F9FAFB',
+      card: '#FFFFFF',
+      secondary: '#F3F4F6',
+      tertiary: '#E5E7EB',
+      dark: '#1F2937',
+      primary: '#2563EB',  // Added for compatibility
+    },
+
+    // Text colors
+    text: {
+      primary: '#111827',
+      secondary: '#6B7280',
+      tertiary: '#9CA3AF',
+      disabled: '#D1D5DB',
+      inverse: '#FFFFFF',
+    },
+
+    // Border colors
+    border: {
+      light: '#E5E7EB',
+      default: '#D1D5DB',
+      dark: '#9CA3AF',
+    },
+
+    // Semantic colors
+    success: '#10B981',
+    warning: '#F59E0B',
+    error: '#EF4444',
+    info: '#3B82F6',
+
+    // Legacy compatibility
+    white: '#FFFFFF',
+    black: '#000000',
+  },
+
+  // Spacing scale (in pixels) - with numeric keys for compatibility
+  spacing: {
+    0: 0,
+    1: 4,
+    2: 8,
+    3: 12,
+    4: 16,
+    5: 20,
+    6: 24,
+    8: 32,
+    10: 40,
+    12: 48,
+    // Named variants
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+    '2xl': 40,
+    '3xl': 48,
+    '4xl': 64,
+  },
+
+  // Border radius - with base for compatibility
+  borderRadius: {
+    none: 0,
+    sm: 4,
+    base: 6,     // Added for compatibility
+    md: 8,
+    lg: 12,
+    xl: 16,
+    '2xl': 24,
+    full: 9999,
+  },
+
+  // Typography
+  typography: {
+    fontSize: {
+      xs: 12,
+      sm: 14,
+      base: 16,
+      lg: 18,
+      xl: 20,
+      '2xl': 24,
+      '3xl': 30,
+      '4xl': 36,
+    },
+    fontWeight: {
+      normal: '400' as const,
+      medium: '500' as const,
+      semibold: '600' as const,
+      bold: '700' as const,
+    },
+    lineHeight: {
+      tight: 1.2,
+      normal: 1.5,
+      relaxed: 1.75,
+    },
+    fontFamily: {
+      regular: 'System',
+      medium: 'System',
+      semibold: 'System',
+      bold: 'System',
+    },
+  },
+
+  // Shadows
+  shadows: {
+    sm: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    md: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 4,
+    },
+    lg: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 8,
+      elevation: 8,
+    },
+    xl: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.2,
+      shadowRadius: 16,
+      elevation: 16,
+    },
+  },
+
+  // Animation durations (in milliseconds)
+  animation: {
+    fast: 150,
+    normal: 300,
+    slow: 500,
+  },
+
+  // Z-index scale
+  zIndex: {
+    dropdown: 1000,
+    sticky: 1020,
+    fixed: 1030,
+    modalBackdrop: 1040,
+    modal: 1050,
+    popover: 1060,
+    tooltip: 1070,
+  },
 } as const;
 
+// Type exports for better TypeScript support
 export type Theme = typeof theme;
-
-export function getResultColor(result: 'ok' | 'nok' | 'na'): string {
-  return colors.status[result];
-}
-
-export function getSeverityColor(
-  severity: 'minor' | 'moderate' | 'serious' | 'critical'
-): string {
-  return colors.severity[severity];
-}
+export type ThemeColors = typeof theme.colors;
+export type ThemeSpacing = typeof theme.spacing;
+export type ThemeTypography = typeof theme.typography;

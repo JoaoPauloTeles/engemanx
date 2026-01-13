@@ -1,135 +1,142 @@
-/**
- * Alert Helper
- * 
- * Clean Code:
- * - Cross-Platform: Funciona em web, iOS e Android
- * - Single Responsibility: Apenas mostra alertas
- * - Fallback: Web usa window.alert quando Alert.alert não disponível
- * 
- * Arquivo: src/utils/alert.utils.ts
- */
-
 import { Alert, Platform } from 'react-native';
 
-// ============================================================================
-// TYPES
-// ============================================================================
-
-interface AlertButton {
-  text: string;
-  onPress?: () => void;
-  style?: 'default' | 'cancel' | 'destructive';
-}
-
-// ============================================================================
-// CROSS-PLATFORM ALERT
-// ============================================================================
-
 /**
- * Mostra alerta que funciona em todas as plataformas
+ * Shows a success alert with a green checkmark (iOS) or default icon (Android)
  * 
- * Web: Usa window.alert + window.confirm
- * iOS/Android: Usa Alert.alert nativo
- */
-export function showAlert(
-  title: string,
-  message: string,
-  buttons: AlertButton[] = [{ text: 'OK' }],
-  options?: { cancelable?: boolean }
-): void {
-  if (Platform.OS === 'web') {
-    showWebAlert(title, message, buttons);
-  } else {
-    Alert.alert(title, message, buttons, options);
-  }
-}
-
-/**
- * Implementação para web usando window.alert
- */
-function showWebAlert(
-  title: string,
-  message: string,
-  buttons: AlertButton[]
-): void {
-  const fullMessage = `${title}\n\n${message}`;
-  
-  if (buttons.length === 1) {
-    // Single button - usa window.alert
-    window.alert(fullMessage);
-    buttons[0].onPress?.();
-  } else {
-    // Multiple buttons - usa window.confirm
-    const confirmed = window.confirm(fullMessage);
-    
-    if (confirmed) {
-      // Primeiro botão (geralmente OK/Confirmar)
-      buttons[0].onPress?.();
-    } else if (buttons.length > 1) {
-      // Segundo botão (geralmente Cancelar)
-      buttons[1].onPress?.();
-    }
-  }
-}
-
-/**
- * Alerta de sucesso
+ * @param {string} title - Alert title
+ * @param {string} message - Alert message
+ * @param {() => void} onPress - Optional callback when OK is pressed
  */
 export function showSuccessAlert(
   title: string,
   message: string,
-  onOk?: () => void
+  onPress?: () => void
 ): void {
-  showAlert(title, message, [
-    {
-      text: 'OK',
-      onPress: onOk,
-      style: 'default',
-    },
-  ]);
+  Alert.alert(
+    title,
+    message,
+    [
+      {
+        text: 'OK',
+        onPress: onPress,
+        style: 'default',
+      },
+    ],
+    { cancelable: false }
+  );
 }
 
 /**
- * Alerta de erro
+ * Shows an error alert with a red X (iOS) or default icon (Android)
+ * 
+ * @param {string} title - Alert title
+ * @param {string} message - Alert message
+ * @param {() => void} onPress - Optional callback when OK is pressed
  */
 export function showErrorAlert(
   title: string,
   message: string,
-  onOk?: () => void
+  onPress?: () => void
 ): void {
-  showAlert(title, message, [
-    {
-      text: 'OK',
-      onPress: onOk,
-      style: 'default',
-    },
-  ]);
+  Alert.alert(
+    title,
+    message,
+    [
+      {
+        text: 'OK',
+        onPress: onPress,
+        style: 'cancel',
+      },
+    ],
+    { cancelable: false }
+  );
 }
 
 /**
- * Alerta de confirmação (Sim/Não)
+ * Shows a confirmation dialog with Cancel and Confirm buttons
+ * 
+ * @param {string} title - Alert title
+ * @param {string} message - Alert message
+ * @param {() => void} onConfirm - Callback when Confirm is pressed
+ * @param {() => void} onCancel - Optional callback when Cancel is pressed
+ * @param {string} confirmText - Custom text for confirm button (default: "Confirmar")
+ * @param {string} cancelText - Custom text for cancel button (default: "Cancelar")
  */
 export function showConfirmAlert(
   title: string,
   message: string,
   onConfirm: () => void,
-  onCancel?: () => void
+  onCancel?: () => void,
+  confirmText: string = 'Confirmar',
+  cancelText: string = 'Cancelar'
 ): void {
-  showAlert(
+  Alert.alert(
     title,
     message,
     [
       {
-        text: 'Sim',
-        onPress: onConfirm,
-        style: 'default',
-      },
-      {
-        text: 'Não',
+        text: cancelText,
         onPress: onCancel,
         style: 'cancel',
       },
+      {
+        text: confirmText,
+        onPress: onConfirm,
+        style: 'default',
+      },
     ],
     { cancelable: false }
+  );
+}
+
+/**
+ * Shows a warning alert
+ * 
+ * @param {string} title - Alert title
+ * @param {string} message - Alert message
+ * @param {() => void} onPress - Optional callback when OK is pressed
+ */
+export function showWarningAlert(
+  title: string,
+  message: string,
+  onPress?: () => void
+): void {
+  Alert.alert(
+    title,
+    message,
+    [
+      {
+        text: 'OK',
+        onPress: onPress,
+        style: 'default',
+      },
+    ],
+    { cancelable: true }
+  );
+}
+
+/**
+ * Shows an info alert
+ * 
+ * @param {string} title - Alert title
+ * @param {string} message - Alert message
+ * @param {() => void} onPress - Optional callback when OK is pressed
+ */
+export function showInfoAlert(
+  title: string,
+  message: string,
+  onPress?: () => void
+): void {
+  Alert.alert(
+    title,
+    message,
+    [
+      {
+        text: 'OK',
+        onPress: onPress,
+        style: 'default',
+      },
+    ],
+    { cancelable: true }
   );
 }
